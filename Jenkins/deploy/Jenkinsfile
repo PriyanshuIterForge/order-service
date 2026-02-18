@@ -1,0 +1,14 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Deploy Container') {
+            steps {
+                bat 'docker stop order-service || exit 0'
+                bat 'docker rm order-service || exit 0'
+                bat 'docker run -d -p 8080:8080 --name order-service order-service'
+            }
+        }
+    }
+}
