@@ -1,23 +1,65 @@
+//pipeline {
+//    agent any
+//
+//    stages {
+//
+//        stage('Checkout') {
+//            steps {
+//                checkout scm
+//            }
+//        }
+//
+//        stage('Build with Gradle') {
+//            steps {
+//                bat 'gradlew build'
+//            }
+//        }
+//
+//        stage('Build Docker Image') {
+//            steps {
+//                bat 'docker build -t order-service .'
+//            }
+//        }
+//    }
+//}
+
 pipeline {
     agent any
 
+    environment {
+        AWS_REGION = 'ap-south-1'
+        DEV_ECR = '654654263647.dkr.ecr.ap-south-1.amazonaws.com/order-service-dev'
+    }
+
     stages {
 
-        stage('Checkout') {
+        stage('Build App') {
             steps {
-                checkout scm
-            }
-        }
-
-        stage('Build with Gradle') {
-            steps {
-                bat 'gradlew build'
+                bat 'gradlew clean build'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t order-service .'
+                bat 'docker build -t order-service-dev .'
+            }
+        }
+
+        stage('Login to ECR') {
+            steps {
+                bat 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 654654263647.dkr.ecr.ap-south-1.amazonaws.com'
+            }
+        }
+
+        stage('Tag Image') {
+            steps {
+                bat 'docker tag order-service 654654263647.dkr.ecr.ap-south-1.amazonaws.com/order-service-dev:latest'
+            }
+        }
+
+        stage('Push Image') {
+            steps {
+                bat 'docker push 654654263647.dkr.ecr.ap-south-1.amazonaws.com/order-service-dev:latest'
             }
         }
     }
