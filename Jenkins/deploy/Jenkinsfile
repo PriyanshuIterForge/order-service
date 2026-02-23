@@ -37,7 +37,7 @@ pipeline {
 
         stage('Run Container') {
             steps {
-                bat 'docker run -d -p 8081:8080 --name order-service %DEV_ECR%:latest'
+                bat 'docker run -d -p 8081:8081 --name order-service %DEV_ECR%:latest'
             }
         }
     }
