@@ -1,13 +1,43 @@
+//pipeline {
+//    agent any
+//
+//    stages {
+//
+//        stage('Deploy Container') {
+//            steps {
+//                bat 'docker stop order-service || exit 0'
+//                bat 'docker rm order-service || exit 0'
+//                bat 'docker run -d -p 8080:8080 --name order-service order-service'
+//            }
+//        }
+//    }
+//}
+
 pipeline {
     agent any
 
+    environment {
+        DEV_ECR = '654654263647.dkr.ecr.ap-south-1.amazonaws.com/order-service-dev'
+    }
+
     stages {
 
-        stage('Deploy Container') {
+        stage('Pull Image') {
+            steps {
+                bat 'docker pull %DEV_ECR%:latest'
+            }
+        }
+
+        stage('Stop Old Container') {
             steps {
                 bat 'docker stop order-service || exit 0'
                 bat 'docker rm order-service || exit 0'
-                bat 'docker run -d -p 8080:8080 --name order-service order-service'
+            }
+        }
+
+        stage('Run Container') {
+            steps {
+                bat 'docker run -d -p 8080:8080 --name order-service %DEV_ECR%:latest'
             }
         }
     }
